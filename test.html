@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สุ่มเลขหวย</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .type-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .type-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .type-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .type-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .type-btn.active:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .count-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .count-btn {
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .count-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .count-btn:active {
+            transform: translateY(0);
+        }
+
+        .count-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 3px solid #fbbf24;
+        }
+
+        .results-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .number-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.5s;
+        }
+
+        .number-card.animating {
+            transform: scale(0.95);
+            opacity: 0.5;
+        }
+
+        .number-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .number-value {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #ccc;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .type-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .number-value {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- Header -->
+            <div class="header">
+                <h1>✨ สุ่มเลขหวย ✨</h1>
+                <p>เลือกประเภทแล้วกดสุ่มเลย!</p>
+            </div>
+
+            <!-- Lottery Type Selection -->
+            <div class="section">
+                <div class="section-title">เลือกประเภทหวย</div>
+                <div class="type-buttons" id="typeButtons">
+                    <button class="type-btn active" data-type="2" data-digits="2">2 ตัว</button>
+                    <button class="type-btn" data-type="3" data-digits="3">3 ตัว</button>
+                    <button class="type-btn" data-type="3-front" data-digits="3">3 ตัวหน้า</button>
+                    <button class="type-btn" data-type="3-back" data-digits="3">3 ตัวหลัง</button>
+                    <button class="type-btn" data-type="6" data-digits="6">6 ตัว</button>
+                </div>
+            </div>
+
+            <!-- Generate Buttons -->
+            <div class="section">
+                <div class="section-title">สุ่มกี่ชุด?</div>
+                <div class="count-buttons">
+                    <button class="count-btn" onclick="generateNumbers(1)">🎲 สุ่ม 1 ชุด</button>
+                    <button class="count-btn" onclick="generateNumbers(3)">🎲 สุ่ม 3 ชุด</button>
+                    <button class="count-btn" onclick="generateNumbers(5)">🎲 สุ่ม 5 ชุด</button>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="resultsContainer"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            ⚠️ เลขสุ่มเป็นเพียงความบันเทิง ไม่รับประกันผลการออกรางวัล
+        </div>
+    </div>
+
+    <script>
+        let selectedType = '2';
+        let selectedDigits = 2;
+        let isAnimating = false;
+
+        // Type button selection
+        document.getElementById('typeButtons').addEventListener('click', function(e) {
+            if (e.target.classList.contains('type-btn')) {
+                // Remove active from all
+                document.querySelectorAll('.type-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active to clicked
+                e.target.classList.add('active');
+                selectedType = e.target.dataset.type;
+                selectedDigits = parseInt(e.target.dataset.digits);
+            }
+        });
+
+        function generateNumbers(count) {
+            if (isAnimating) return;
+            
+            isAnimating = true;
+            const buttons = document.querySelectorAll('.count-btn');
+            buttons.forEach(btn => btn.disabled = true);
+
+            // Show animating state
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="results">
+                    <div class="results-title">🎯 เลขที่สุ่มได้</div>
+                    <div class="numbers-grid" id="numbersGrid"></div>
+                </div>
+            `;
+
+            const numbersGrid = document.getElementById('numbersGrid');
+            
+            // Generate numbers
+            setTimeout(() => {
+                const numbers = [];
+                for (let i = 0; i < count; i++) {
+                    let num = '';
+                    for (let j = 0; j < selectedDigits; j++) {
+                        num += Math.floor(Math.random() * 10);
+                    }
+                    numbers.push(num);
+                }
+
+                // Display numbers with animation
+                numbers.forEach((num, idx) => {
+                    const card = document.createElement('div');
+                    card.className = 'number-card animating';
+                    card.innerHTML = `
+                        <div class="number-label">ชุดที่ ${idx + 1}</div>
+                        <div class="number-value">${num}</div>
+                    `;
+                    numbersGrid.appendChild(card);
+
+                    // Remove animation class after delay
+                    setTimeout(() => {
+                        card.classList.remove('animating');
+                    }, idx * 100 + 100);
+                });
+
+                isAnimating = false;
+                buttons.forEach(btn => btn.disabled = false);
+            }, 300);
+        }
+
+        // Show empty state initially
+        document.getElementById('resultsContainer').innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                </svg>
+                <p style="font-size: 18px;">กดปุ่มด้านบนเพื่อสุ่มเลข</p>
+            </div>
+        `;
+    </script>
+</body>
+</html>
