@@ -33,6 +33,42 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 15px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+            color: #666;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 30px;
@@ -190,6 +226,141 @@
             opacity: 0.3;
         }
 
+        .wheel-container {
+            text-align: center;
+        }
+
+        .wheel-canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 30px 0;
+        }
+
+        #wheelCanvas {
+            border-radius: 50%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            background: white;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #ef4444;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+            z-index: 10;
+        }
+
+        .spin-btn {
+            padding: 20px 50px;
+            border: none;
+            border-radius: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+            margin: 20px 0;
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .current-number {
+            font-size: 48px;
+            font-weight: 900;
+            color: #ef4444;
+            margin: 20px 0;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .digit-box {
+            display: inline-block;
+            width: 50px;
+            height: 60px;
+            line-height: 60px;
+            background: white;
+            border: 3px solid #ef4444;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .digit-box.spinning {
+            animation: digitSpin 0.1s linear infinite;
+        }
+
+        @keyframes digitSpin {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .collected-numbers {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 3px solid #818cf8;
+        }
+
+        .collected-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .collected-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .collected-item {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .clear-btn {
+            padding: 10px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #ef4444;
+            color: white;
+            margin-top: 15px;
+        }
+
+        .clear-btn:hover {
+            background: #dc2626;
+        }
+
         .footer {
             text-align: center;
             margin-top: 20px;
@@ -207,6 +378,11 @@
                 font-size: 28px;
             }
 
+            .nav-tab {
+                font-size: 14px;
+                padding: 12px;
+            }
+
             .type-buttons {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -214,64 +390,139 @@
             .number-value {
                 font-size: 28px;
             }
+
+            #wheelCanvas {
+                max-width: 100%;
+                height: auto;
+            }
+
+            .spin-btn {
+                padding: 15px 40px;
+                font-size: 20px;
+            }
+
+            .current-number {
+                font-size: 36px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <!-- Header -->
-            <div class="header">
-                <h1>✨ สุ่มเลขหวย ✨</h1>
-                <p>เลือกประเภทแล้วกดสุ่มเลย!</p>
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchPage('random')">🎲 สุ่มเลข</button>
+                <button class="nav-tab" onclick="switchPage('wheel')">🎡 วงล้อ</button>
             </div>
 
-            <!-- Lottery Type Selection -->
-            <div class="section">
-                <div class="section-title">เลือกประเภทหวย</div>
-                <div class="type-buttons" id="typeButtons">
-                    <button class="type-btn active" data-type="2" data-digits="2">2 ตัว</button>
-                    <button class="type-btn" data-type="3" data-digits="3">3 ตัว</button>
-                    <button class="type-btn" data-type="3-front" data-digits="3">3 ตัวหน้า</button>
-                    <button class="type-btn" data-type="3-back" data-digits="3">3 ตัวหลัง</button>
-                    <button class="type-btn" data-type="6" data-digits="6">6 ตัว</button>
+            <div id="randomPage" class="page active">
+                <div class="header">
+                    <h1>✨ สุ่มเลขหวย ✨</h1>
+                    <p>เลือกประเภทแล้วกดสุ่มเลย!</p>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">เลือกประเภทหวย</div>
+                    <div class="type-buttons" id="typeButtons">
+                        <button class="type-btn active" data-type="2" data-digits="2">2 ตัว</button>
+                        <button class="type-btn" data-type="3" data-digits="3">3 ตัว</button>
+                        <button class="type-btn" data-type="3-front" data-digits="3">3 ตัวหน้า</button>
+                        <button class="type-btn" data-type="3-back" data-digits="3">3 ตัวหลัง</button>
+                        <button class="type-btn" data-type="6" data-digits="6">6 ตัว</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">สุ่มกี่ชุด?</div>
+                    <div class="count-buttons">
+                        <button class="count-btn" onclick="generateNumbers(1)">🎲 สุ่ม 1 ชุด</button>
+                        <button class="count-btn" onclick="generateNumbers(3)">🎲 สุ่ม 3 ชุด</button>
+                        <button class="count-btn" onclick="generateNumbers(5)">🎲 สุ่ม 5 ชุด</button>
+                    </div>
+                </div>
+
+                <div id="resultsContainer"></div>
+            </div>
+
+            <div id="wheelPage" class="page">
+                <div class="header">
+                    <h1>🎡 วงล้อหมุนเลข</h1>
+                    <p>เลือกจำนวนตัวแล้วหมุนเลย!</p>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">หมุนเลขกี่ตัว?</div>
+                    <div class="type-buttons" id="wheelDigitButtons">
+                        <button class="type-btn active" onclick="setWheelDigits(1)">1 ตัว</button>
+                        <button class="type-btn" onclick="setWheelDigits(2)">2 ตัว</button>
+                        <button class="type-btn" onclick="setWheelDigits(3)">3 ตัว</button>
+                        <button class="type-btn" onclick="setWheelDigits(4)">4 ตัว</button>
+                        <button class="type-btn" onclick="setWheelDigits(5)">5 ตัว</button>
+                        <button class="type-btn" onclick="setWheelDigits(6)">6 ตัว</button>
+                    </div>
+                </div>
+
+                <div class="wheel-container">
+                    <div class="wheel-canvas-wrapper">
+                        <div class="wheel-pointer"></div>
+                        <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                    </div>
+
+                    <div class="current-number" id="currentNumber">พร้อมหมุน!</div>
+
+                    <button class="spin-btn" id="spinBtn" onclick="spinWheel()">
+                        🎯 หมุนเลย!
+                    </button>
+                </div>
+
+                <div class="collected-numbers" id="collectedContainer" style="display:none;">
+                    <div class="collected-title">เลขที่หมุนมาได้ทั้งหมด:</div>
+                    <div class="collected-grid" id="collectedGrid"></div>
+                    <div style="text-align: center;">
+                        <button class="clear-btn" onclick="clearCollected()">🗑️ ล้างทั้งหมด</button>
+                    </div>
                 </div>
             </div>
-
-            <!-- Generate Buttons -->
-            <div class="section">
-                <div class="section-title">สุ่มกี่ชุด?</div>
-                <div class="count-buttons">
-                    <button class="count-btn" onclick="generateNumbers(1)">🎲 สุ่ม 1 ชุด</button>
-                    <button class="count-btn" onclick="generateNumbers(3)">🎲 สุ่ม 3 ชุด</button>
-                    <button class="count-btn" onclick="generateNumbers(5)">🎲 สุ่ม 5 ชุด</button>
-                </div>
-            </div>
-
-            <!-- Results -->
-            <div id="resultsContainer"></div>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
             
         </div>
     </div>
 
     <script>
+        // Random Page Variables
         let selectedType = '2';
         let selectedDigits = 2;
         let isAnimating = false;
 
-        // Type button selection
+        // Wheel Page Variables
+        let wheelDigits = 1;
+        let isSpinning = false;
+        let collectedNumbers = [];
+        let currentRotation = 0;
+
+        // Page Switching
+        function switchPage(page) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            if (page === 'random') {
+                event.target.classList.add('active');
+                document.getElementById('randomPage').classList.add('active');
+            } else {
+                event.target.classList.add('active');
+                document.getElementById('wheelPage').classList.add('active');
+                drawWheel();
+            }
+        }
+
+        // Random Page Functions
         document.getElementById('typeButtons').addEventListener('click', function(e) {
             if (e.target.classList.contains('type-btn')) {
-                // Remove active from all
-                document.querySelectorAll('.type-btn').forEach(btn => {
+                document.querySelectorAll('#typeButtons .type-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
-                
-                // Add active to clicked
                 e.target.classList.add('active');
                 selectedType = e.target.dataset.type;
                 selectedDigits = parseInt(e.target.dataset.digits);
@@ -285,7 +536,6 @@
             const buttons = document.querySelectorAll('.count-btn');
             buttons.forEach(btn => btn.disabled = true);
 
-            // Show animating state
             const resultsContainer = document.getElementById('resultsContainer');
             resultsContainer.innerHTML = `
                 <div class="results">
@@ -296,7 +546,6 @@
 
             const numbersGrid = document.getElementById('numbersGrid');
             
-            // Generate numbers
             setTimeout(() => {
                 const numbers = [];
                 for (let i = 0; i < count; i++) {
@@ -307,7 +556,6 @@
                     numbers.push(num);
                 }
 
-                // Display numbers with animation
                 numbers.forEach((num, idx) => {
                     const card = document.createElement('div');
                     card.className = 'number-card animating';
@@ -317,7 +565,6 @@
                     `;
                     numbersGrid.appendChild(card);
 
-                    // Remove animation class after delay
                     setTimeout(() => {
                         card.classList.remove('animating');
                     }, idx * 100 + 100);
@@ -328,7 +575,6 @@
             }, 300);
         }
 
-        // Show empty state initially
         document.getElementById('resultsContainer').innerHTML = `
             <div class="empty-state">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -340,7 +586,201 @@
                 <p style="font-size: 18px;">กดปุ่มด้านบนเพื่อสุ่มเลข</p>
             </div>
         `;
+
+        // Wheel Page Functions
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function setWheelDigits(digits) {
+            if (isSpinning) return;
+            
+            wheelDigits = digits;
+            document.querySelectorAll('#wheelDigitButtons .type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            drawWheel();
+        }
+
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 140;
+            const numbers = 10;
+            const anglePerSegment = (2 * Math.PI) / numbers;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // วาดวงล้อหมุนตามเข็ม และเลขเรียงตามเข็ม
+            for (let i = 0; i < numbers; i++) {
+                // วงล้อหมุนตามเข็ม (บวก i)
+                const startAngle = -Math.PI / 2 - anglePerSegment / 2 + i * anglePerSegment + currentRotation;
+                const endAngle = -Math.PI / 2 - anglePerSegment / 2 + (i + 1) * anglePerSegment + currentRotation;
+
+                const colors = ['#667eea', '#764ba2', '#f093fb', '#f59e0b', '#10b981'];
+                ctx.fillStyle = colors[i % colors.length];
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // แสดงตัวเลขตามเข็ม
+                const displayNumber = i % 10;
+                
+                const numberAngle = startAngle + anglePerSegment / 2;
+                const textX = centerX + Math.cos(numberAngle) * (radius * 0.65);
+                const textY = centerY + Math.sin(numberAngle) * (radius * 0.65);
+                
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 36px Arial';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetX = 2;
+                ctx.shadowOffsetY = 2;
+                ctx.fillText(displayNumber, textX, textY);
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+            }
+
+            // Draw center circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 25, 0, 2 * Math.PI);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        // คำนวณเลขที่ชี้ (วงล้อหมุนตามเข็ม และเลขเรียงตามเข็ม)
+        function getNumberAtPointer(rotation) {
+            const anglePerSegment = (2 * Math.PI) / 10;
+            // ทวนทิศทางการคำนวณให้ตรงกับการหมุนจริง
+            let normalized = ((-rotation + anglePerSegment / 2) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+            let segmentIndex = Math.floor(normalized / anglePerSegment);
+            // คืนค่าเลขที่แสดง
+            return segmentIndex % 10;
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            
+            const currentNumberDiv = document.getElementById('currentNumber');
+            currentNumberDiv.innerHTML = '';
+            
+            const digitBoxes = [];
+            for (let i = 0; i < wheelDigits; i++) {
+                const box = document.createElement('div');
+                box.className = 'digit-box';
+                box.textContent = '-';
+                currentNumberDiv.appendChild(box);
+                digitBoxes.push(box);
+            }
+
+            let currentDigitIndex = 0;
+            const finalNumbers = [];
+
+            function spinNextDigit() {
+                if (currentDigitIndex >= wheelDigits) {
+                    finishAllSpins(finalNumbers);
+                    return;
+                }
+
+                const box = digitBoxes[currentDigitIndex];
+                box.classList.add('spinning');
+
+                const finalDigit = Math.floor(Math.random() * 10);
+                
+                const anglePerSegment = (2 * Math.PI) / 10;
+                const spins = 8;
+                
+                const randomOffset = (Math.random() * 0.6 + 0.2) * anglePerSegment;
+                
+                // หาว่าต้องหมุนไปช่องไหนให้ได้เลข finalDigit (วงล้อหมุนตามเข็ม)
+                const targetSegment = finalDigit;
+                const targetRotation = targetSegment * anglePerSegment + randomOffset;
+                const totalRotation = spins * 2 * Math.PI + targetRotation;
+                
+                const duration = 10000;
+                const startTime = Date.now();
+                const startRotation = currentRotation;
+
+                function animate() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    
+                    currentRotation = startRotation + totalRotation * easeOut;
+                    drawWheel();
+
+                    if (progress < 0.95) {
+                        const currentNumber = getNumberAtPointer(currentRotation);
+                        box.textContent = currentNumber;
+                    }
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        const finalNumber = getNumberAtPointer(currentRotation);
+                        box.textContent = finalNumber;
+                        box.classList.remove('spinning');
+                        finalNumbers.push(finalNumber);
+                        
+                        currentDigitIndex++;
+                        setTimeout(spinNextDigit, 500);
+                    }
+                }
+
+                animate();
+            }
+
+            spinNextDigit();
+        }
+
+        function finishAllSpins(numbers) {
+            const fullNumber = numbers.join('');
+            
+            collectedNumbers.push(fullNumber);
+            updateCollectedDisplay();
+
+            isSpinning = false;
+            document.getElementById('spinBtn').disabled = false;
+        }
+
+        function updateCollectedDisplay() {
+            const container = document.getElementById('collectedContainer');
+            const grid = document.getElementById('collectedGrid');
+            
+            container.style.display = 'block';
+            grid.innerHTML = '';
+            
+            collectedNumbers.forEach((num) => {
+                const item = document.createElement('div');
+                item.className = 'collected-item';
+                item.textContent = num;
+                grid.appendChild(item);
+            });
+        }
+
+        function clearCollected() {
+            collectedNumbers = [];
+            document.getElementById('collectedContainer').style.display = 'none';
+            document.getElementById('currentNumber').textContent = 'พร้อมหมุน!';
+        }
+
+        // Initialize wheel
+        drawWheel();
     </script>
 </body>
-
 </html>
